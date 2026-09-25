@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Diabetes Prediction</title>
+<style>
+  :root {
+  --blue-light: #e3f2fd;
+  --blue-dark: #bbdefb;
+  --blue-primary: #2196f3;
+  --blue-hover: #0b7dda;
+  --nav-color: #1976d2;
+  --nav-text: #1565c0;
+}
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background: linear-gradient(to right, var(--blue-light), var(--blue-dark));
+  color: #333;
+}
+/* Navigation */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--blue-light);
+  padding: 0.8rem 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+nav .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--nav-text);
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+nav ul li {
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #333;
+  transition: color 0.3s;
+}
+nav ul li:hover {
+  color: var(--nav-color);
+  text-decoration: underline;
+}
+/* Section Layout */
+section {
+  display: none;
+  padding: 3rem 2rem;
+  min-height: 85vh;
+  width: 100%;
+  animation: fadeIn 0.8s ease-in-out;
+  transition: 0.4s ease-in-out;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+section.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+  z-index: 10;
+}
+/* Section Backgrounds */
+section#home {
+  background: linear-gradient(135deg, #e3f2fd, #90caf9);
+}
+section#register {
+  background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+}
+section#predict {
+  background: linear-gradient(135deg, #e8f5e9, #a5d6a7);
+}
+section#report {
+  background: linear-gradient(135deg, #fff3e0, #ffcc80);
+}
+section#contact {
+  background: linear-gradient(135deg, #ede7f6, #b39ddb);
+}
+/* Home Section */
+#home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-box {
+  width: 90%;
+  max-width: 1100px;
+  height: 100%;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+}
+.home-box .text {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.home-box .image {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-box img {
+  max-width: 100%;
+  max-height: 80%;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  object-fit: contain;
+}
+/* Forms & Text */
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+p, input, button, textarea, select, label {
+  font-size: 1rem;
+  margin: 0.5rem 0;
+}
+input, textarea, select, button {
+  padding: 0.6rem;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid #ccc;
+}
+button {
+  background: var(--blue-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+button:hover {
+  background: var(--blue-hover);
+}
+/* Report Section */
+#report h1, #report h2, #report p, #report li {
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+}
+#report ul {
+  list-style-type: "💡 ";
+  padding-left: 1.2rem;
+  text-align: left;
+  max-width: 600px;
+}
+#suggestionBox {
+  margin-top: 1.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1rem;
+  border-radius: 10px;
+}
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
+</head>
+<body>
+<!-- NAVIGATION BAR SECTION -->
+<nav>
+  <h2><div class="logo">🩺 DiabetesPredict</div></h2>
+  <h3>
+  <ul>
+    <li onclick="navigate('home')">Home</li>
+    <li onclick="navigate('login')">Login</li>
+    <li onclick="navigate('register')">Register</li>
+    <li onclick="navigate('predict')">Predict</li>
+    <li onclick="navigate('report')">Report</li>
+    <li onclick="navigate('contact')">Contact</li>
+    <!-- Show user email -->
+<p id="user-email" style="margin: 10px 0; color: #333;"></p>
+<!-- Logout Button -->
+ <li>
+<button id="logoutBtn" onclick="logout()" class="logout-button-small" style="display: none;">
+  🔓 Logout
+</button>
+</li>
+
+
+  </ul>
+  </h3>
+</nav>
+<!-- HOME SECTION -->
+<section id="home" class="active">
+  <center>
+  <div class="home-box">
+    <div class="text">
+      <h1>Welcome to <span style="color:#3498db;">Diabetes Predictor</span></h1>
+      <p>
+        🩺 <strong>About the Website:</strong><br><br>
+        <strong>DiabetesPredict</strong> is your personal health assistant! Just provide a few simple health details like glucose level, BMI, and age.<br><br>
+        If you're female, we'll also ask about pregnancies. Choose your favorite ML model, and within seconds, you'll get your prediction with a confidence score — along with useful health guidance.
+      </p>
+    </div>
+    <div class="image">
+      <img src="./home page.jpeg" alt="Home Page" />
+    </div>
+  </div>
+  </center>
+</section>
+<!-- LOGIN SECTION -->
+<section id="login" style="padding: 2rem; display: none;">
+  <center>
+    <h2>🔐 Login</h2>
+    <br><br>
+    <form onsubmit="handleLogin(event)">
+      <div style="margin-bottom: 1rem;">
+        <label for="loginEmail">Email:</label><br>
+        <input type="email" id="loginEmail" placeholder="Enter your Gmail" required>
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label for="loginPassword">Password:</label><br>
+        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+      </div>
+      <button type="submit">Login</button>
+      <p id="login-status" style="color: red; margin-top: 1rem;"></p>
+      <p style="margin-top: 1.5rem;">
+        Don't have an account? <a href="javascript:void(0)" onclick="navigate('register')">Register</a>
+      </p>
+    </form>
+  </center>
+</section>
+<!-- REGISTER SECTION -->
+<section id="register" style="padding: 2rem; display: none;">
+  <center>
+    <h2>📝 Register</h2>
+    <br><br>
+    <form onsubmit="validateRegistration(event)">
+      <div style="margin-bottom: 1rem;">
+        <label for="fullname">Full Name:</label><br>
+        <input type="text" id="fullname" placeholder="Enter your full name" required>
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" placeholder="Enter your Gmail" required>
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" placeholder="At least 6 characters" required>
+      </div>
+      <button type="submit">Register</button>
+      <p id="register-status" style="color: red; margin-top: 1rem;"></p>
+    </form>
+  </center>
+</section>
+<!-- PREDICT SECTION -->
+<section id="predict" style="padding: 2rem; display: none;">
+  <center>
+    <h1>Predict Diabetes</h1>
+    <p id="predict-warning" style="color: red; display: block;">
+      ⚠️ You must login or register before accessing this page.
+    </p>
+    <div id="predict-content" style="display: none;">
+      <form id="predict-form" onsubmit="submitPrediction(event)">
+        <div style="margin-bottom: 1rem;">
+          <label for="gender">Gender:</label><br>
+          <select id="gender" required onchange="togglePregnancies()">
+            <option value="">Select Gender</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+          </select>
+        </div>
+        <div id="pregnancyField" style="display: none; margin-bottom: 1rem;">
+          <label for="pregnancies">Number of Pregnancies:</label><br>
+          <input type="number" id="pregnancies" min="0" placeholder="Enter number of pregnancies">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label for="glucose">Glucose Level:</label><br>
+          <input type="number" id="glucose" placeholder="Glucose Level" required min="1" max="200">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label for="bmi">BMI:</label><br>
+          <input type="number" id="bmi" placeholder="BMI" required step="0.1" min="1" max="100">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label for="age">Age:</label><br>
+          <input type="number" id="age" placeholder="Age" required min="1" max="100">
+        </div>
+        <button type="submit">Submit for Prediction</button>
+      </form>
+    </div>
+  </center>
+</section>
+<!-- REPORT SECTION -->
+<section id="report" style="padding: 2rem;">
+  <h1 style="
+    text-align: center;
+    font-size: 2.5rem;
+    color: black;
+    font-weight: bold;
+    margin-bottom: 2rem;
+  ">
+    📝 Prediction Report
+  </h1>
+  <!-- Prediction Result Message -->
+  <div id="predictionResult" style="text-align: center; margin-top: 2rem; font-size: 1.2rem;"></div>
+<br><br>
+  <!-- Suggestions and Chart Side-by-Side Container -->
+  <div style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center;">
+    <!-- Suggestion Box -->
+    <div style="flex: 1; min-width: 300px; max-width: 500px; background: #fff; border-radius: 12px; padding: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+      <h2 style="
+        text-align: center;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(to right, #0c6f35, #21f356);
+        font-weight: bold;
+      ">🧾 Health Suggestions</h2>
+      <ul id="suggestionsList" style="list-style: none; padding: 0;"></ul>
+    </div>
+    <!-- Chart Box -->
+    <div style="flex: 1; min-width: 300px; max-width: 500px; background: #fff; border-radius: 12px; padding: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column;">
+      <h2 style="
+        text-align: center;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(to right, #2196f3, #21cbf3);
+        font-weight: bold;
+      ">
+        📈 BMI vs Glucose
+      </h2>
+      <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
+        <canvas id="bmiChart" style="width: 100% !important; height: 100% !important;"></canvas>
+      </div>
+    </div>
+  </div>
+</section>  
+<!-- CONTACT SECTION -->
+<section id="contact" >
+  <center>
+  <div>
+    <h1 style="font-size: 3rem; margin-bottom: 1rem;">📞 Contact Us</h1>
+    <p style="font-size: 1.2rem; margin: 0.5rem 0;"><strong>👩‍💻 Name:</strong> Ritham</p>
+    <p style="font-size: 1.2rem; margin: 0.5rem 0;"><strong>📧 Email:</strong> diabetespredict@gmail.com</p>
+    <p style="font-size: 1.2rem; margin: 0.5rem 0;"><strong>📞 Phone:</strong> +91-9123456788</p>
+    <p style="font-size: 1.2rem; margin: 0.5rem 0;"><strong>📍 Location:</strong> Hyderabad, India</p>
+    <p style="font-size: 1.1rem; margin-top: 2rem;">We're happy to help you with any queries, suggestions, or support requests! 🤝</p>
+  </div>
+  </center>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  let bmiChartInstance = null;
+  // ---------------------- User Auth Utilities ----------------------
+  function getRegisteredUsers() {
+    const users = localStorage.getItem("registeredUsers");
+    return users ? JSON.parse(users) : [];
+  }
+  function saveRegisteredUser(user) {
+    const users = getRegisteredUsers();
+    users.push(user);
+    localStorage.setItem("registeredUsers", JSON.stringify(users));
+  }
+  function findUserByEmail(email) {
+    return getRegisteredUsers().find(u => u.email === email);
+  }
+  function showUserEmail() {
+    const emailDisplay = document.getElementById("user-email");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const user = localStorage.getItem("loggedInUser");
+    if (emailDisplay && logoutBtn) {
+      if (user) {
+        emailDisplay.textContent = `👤: ${user}`;
+        logoutBtn.style.display = "inline-block";
+      } else {
+        emailDisplay.textContent = "";
+        logoutBtn.style.display = "none";
+      }
+    }
+  }
+  // ---------------------- Auth Handlers ----------------------
+  function validateRegistration(event) {
+    event.preventDefault();
+    const name = document.getElementById("fullname").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const status = document.getElementById("register-status");
+    if (!name || !email || !password) {
+      status.textContent = "⚠️ All fields are required.";
+      return;
+    }
+    if (!/^[A-Za-z\s]+$/.test(name)) {
+      status.textContent = "⚠️ Name should contain only letters and spaces.";
+      return;
+    }
+    if (!email.endsWith("@gmail.com")) {
+      status.textContent = "⚠️ Email must end with @gmail.com.";
+      return;
+    }
+    if (password.length < 6) {
+      status.textContent = "⚠️ Password must be at least 6 characters.";
+      return;
+    }
+    if (findUserByEmail(email)) {
+      status.textContent = "⚠️ User with this email already exists.";
+      return;
+    }
+    saveRegisteredUser({ name, email, password });
+    localStorage.setItem("isAuthenticated", "true");
+    localStorage.setItem("loggedInUser", email);
+    alert("✅ Registration successful!");
+    showUserEmail();
+    navigate("predict");
+  }
+  function handleLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const status = document.getElementById("login-status");
+
+    const user = findUserByEmail(email);
+    if (user && user.password === password) {
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("loggedInUser", email);
+      status.textContent = "";
+      alert("✅ Login successful!");
+      showUserEmail();
+      navigate("predict");
+    } else {
+      status.textContent = "❌ Invalid email or password.";
+    }
+  }
+  function logout() {
+  localStorage.removeItem("isAuthenticated");
+  localStorage.removeItem("loggedInUser");
+  // Clear all input fields
+  document.querySelectorAll("input").forEach(input => input.value = "");
+  document.querySelectorAll("select").forEach(select => select.selectedIndex = 0);
+  document.querySelectorAll("textarea").forEach(textarea => textarea.value = "");
+  // Reset pregnancy field display
+  togglePregnancies();
+  // Clear prediction result and suggestions
+  document.getElementById("predictionResult").innerHTML = "";
+  document.getElementById("suggestionsList").innerHTML = "";
+  // Destroy chart if exists
+  if (bmiChartInstance) {
+    bmiChartInstance.destroy();
+    bmiChartInstance = null;
+  }
+  alert("👋 Logged out successfully.");
+  navigate("home");
+  showUserEmail();
+}
+  // ---------------------- Navigation Logic ----------------------
+  function navigate(id) {
+    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+
+    if ((id === "predict" || id === "report") && !isAuthenticated) {
+      alert("⚠️ Access denied. Please register or login first.");
+      return;
+    }
+    document.querySelectorAll("section").forEach(sec => {
+      sec.classList.remove("active");
+      sec.classList.add("fade-out");
+    });
+    setTimeout(() => {
+      document.querySelectorAll("section").forEach(sec => {
+        sec.classList.remove("fade-out");
+        sec.style.display = "none";
+      });
+      const target = document.getElementById(id);
+      if (target) {
+        target.style.display = "block";
+        target.classList.add("active");
+      }
+      // Show/hide predict section content
+      if (id === "predict") {
+        const predictContent = document.getElementById("predict-content");
+        const predictWarning = document.getElementById("predict-warning");
+        if (predictContent && predictWarning) {
+          predictContent.style.display = isAuthenticated ? "block" : "none";
+          predictWarning.style.display = isAuthenticated ? "none" : "block";
+        }
+      }
+    }, 300);
+  }
+  // ---------------------- Prediction Logic ----------------------
+  function togglePregnancies() {
+    const gender = document.getElementById("gender").value;
+    const pregnancyField = document.getElementById("pregnancyField");
+    if (pregnancyField) {
+      pregnancyField.style.display = gender === "female" ? "block" : "none";
+    }
+  }
+  function submitPrediction(event) {
+    event.preventDefault();
+    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+    if (!isAuthenticated) {
+      alert("⚠️ Please login to submit prediction.");
+      return;
+    }
+    const gender = document.getElementById("gender").value;
+    const pregnanciesInput = document.getElementById("pregnancies");
+    const pregnancies = gender === "female" ? parseFloat(pregnanciesInput.value || 0) : 0;
+
+    if (gender === "female" && pregnanciesInput.value === "") {
+      alert("⚠️ Please enter number of pregnancies.");
+      pregnanciesInput.focus();
+      return;
+    }
+    const glucose = parseFloat(document.getElementById("glucose").value);
+    const bmi = parseFloat(document.getElementById("bmi").value);
+    const age = parseFloat(document.getElementById("age").value);
+    const model = "random_forest";
+    const data = { pregnancies, glucose, bmi, age, model };
+    document.getElementById("predictionResult").innerHTML = `<p><em>⏳ Predicting...</em></p>`;
+    document.getElementById("suggestionsList").innerHTML = "";
+    fetch("http://127.0.0.1:5000/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    })
+      .then(res => res.json())
+      .then(response => {
+        if (response.result) {
+          const resultText = response.result;
+          const isDiabetic = resultText.toLowerCase() === "diabetic";
+          const emoji = isDiabetic ? "❌" : "✅";
+          const resultColor = isDiabetic ? "red" : "green";
+          const modelUsed = "RANDOM FOREST";
+          let warning = "";
+          if (!isDiabetic && (glucose > 140 || bmi > 30 || age > 45)) {
+            warning = `<p style="color: orange;"><strong>⚠️ At risk! Consider consulting a doctor.</strong></p>`;
+          }
+          document.getElementById("predictionResult").innerHTML = `
+            <h3 style="color:${resultColor}">${emoji} <strong>${modelUsed}</strong> predicts: ${resultText}</h3>
+            ${warning}
+          `;
+         const suggestions = isDiabetic
+          ? [
+              "🥗 Follow a diabetic meal plan with complex carbs and lean protein.","📉 Monitor your blood sugar levels at least twice a day.","💊 Take medications or insulin exactly as prescribed.","🚶 Walk after meals to help control blood glucose spikes.","🧂 Reduce sodium intake to avoid high blood pressure.","👨‍⚕️ Visit your endocrinologist every 3–6 months.","🦶 Check your feet daily for wounds or infections.","🦷 Maintain oral hygiene – diabetics are prone to gum issues.","🚫 Avoid alcohol completely if you’re on insulin therapy.","🥄 Eat small, frequent meals to prevent hypoglycemia."
+            ]
+          : [
+              "🥦 Eat whole foods like vegetables, fruits, legumes, and whole grains.","🏃‍♀️ Aim for 150 minutes of moderate activity every week.","📏 Maintain a healthy waist size – high abdominal fat increases risk.", "🩺 Get fasting blood sugar checked once a year if over 40.","📵 Limit screen time and avoid sedentary behavior.","🥤 Say no to sugary drinks – opt for coconut water or buttermilk.","🧠 Engage in mentally stimulating activities to improve cognition.","🍽 Practice mindful eating and avoid emotional snacking.","😴 Keep a consistent sleep routine, even on weekends.","🚭 Avoid smoking – it increases insulin resistance."
+            ];          const suggestionList = document.getElementById("suggestionsList");
+          suggestionList.innerHTML = "";
+          suggestions.forEach(s => {
+            const li = document.createElement("li");
+            li.innerHTML = `<span style="color: #2c3e50;">${s}</span>`;
+            li.style.cssText = `
+              background: #f0f9ff;
+              border: 1px solid #cce0ff;
+              border-radius: 8px;
+              padding: 10px 14px;
+              margin-bottom: 8px;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+              list-style: none;
+            `;
+            suggestionList.appendChild(li);
+          });
+          drawChart(bmi, glucose);
+          navigate("report");
+        } else {
+          alert("Prediction failed: " + response.error);
+        }
+      })
+      .catch(err => {
+        alert("Server error: " + err.message);
+      });
+  }
+  function drawChart(bmi, glucose) {
+    const ctx = document.getElementById("bmiChart").getContext("2d");
+    if (bmiChartInstance) bmiChartInstance.destroy();
+    bmiChartInstance = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["BMI", "Glucose"],
+        datasets: [{
+          label: "Your Values",
+          data: [bmi, glucose],
+          backgroundColor: ["#42a5f5", "#66bb6a"]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 10 }
+          }
+        }
+      }
+    });
+  }
+  // ---------------------- On Load ----------------------
+  document.addEventListener("DOMContentLoaded", () => {
+    togglePregnancies();
+    showUserEmail();
+    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+    const predictContent = document.getElementById("predict-content");
+    const predictWarning = document.getElementById("predict-warning");
+    if (predictContent && predictWarning) {
+      predictContent.style.display = isAuthenticated ? "block" : "none";
+      predictWarning.style.display = isAuthenticated ? "none" : "block";
+    }
+  });
+</script>
+</body>
+</html>
